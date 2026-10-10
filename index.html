@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Distributori</title>
+  <meta name="description" content="Distributori di carburante vicino a te con i prezzi aggiornati del MIMIT">
+  <meta name="theme-color" content="#1b4f9c">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand" aria-label="Distributori">
+        <span class="p-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="5" y="4" width="9" height="15" rx="1.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M7 7.5h5v3H7z" fill="#fff"/><path d="M3.5 20h12" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M14 8.5h2a1.5 1.5 0 0 1 1.5 1.5v6a1.3 1.3 0 0 0 2.6 0V9.5L18 7" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="brand-name">Distributori</span>
+      </div>
+      <form class="cerca" id="form-cerca" role="search">
+        <label for="cerca-indirizzo" class="sr-only">Cerca un indirizzo</label>
+        <input id="cerca-indirizzo" type="search" placeholder="Cerca…" autocomplete="off" enterkeyhint="search">
+      </form>
+      <label class="carb">
+        <span class="sr-only">Carburante</span>
+        <select id="carburante">
+          <option value="B" selected>Benzina</option>
+          <option value="G">Gasolio</option>
+          <option value="L">GPL</option>
+          <option value="M">Metano</option>
+        </select>
+      </label>
+      <label class="raggio">
+        <span class="sr-only">Raggio</span>
+        <select id="raggio">
+          <option value="1000">1 km</option>
+          <option value="2000">2 km</option>
+          <option value="5000" selected>5 km</option>
+          <option value="10000">10 km</option>
+        </select>
+      </label>
+    </header>
+
+    <main class="corpo">
+      <div id="mappa" class="mappa" role="application" aria-label="Mappa dei distributori"></div>
+      <div class="filigrana" id="filigrana" aria-hidden="true"><span id="filigrana-testo">Versione</span></div>
+
+      <div class="fab-col">
+        <button class="fab" id="btn-centra" type="button" title="Torna alla mia posizione" aria-label="Torna alla mia posizione">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        </button>
+        <button class="fab fab-nero" id="btn-elenco" type="button" title="Elenco dei distributori" aria-label="Apri l'elenco dei distributori" aria-controls="pannello" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="4.5" cy="6" r="1.6" fill="currentColor"/><circle cx="4.5" cy="12" r="1.6" fill="currentColor"/><circle cx="4.5" cy="18" r="1.6" fill="currentColor"/></svg>
+          <span class="badge" id="badge-elenco" hidden></span>
+        </button>
+        <button class="fab" id="btn-aggiorna" type="button" title="Aggiorna" aria-label="Aggiorna i dati">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div class="fab-sx">
+        <button class="fab" id="btn-guida" type="button" title="Guida all'app" aria-label="Apri la guida all'app" aria-controls="guida" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9.2 9a2.9 2.9 0 1 1 4.1 2.6c-.8.4-1.3 1.1-1.3 2v.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.3" fill="currentColor"/></svg>
+        </button>
+        <button class="fab fab-occhio" id="occhio" type="button" hidden title="Schermo sempre acceso" aria-label="Schermo sempre acceso: AUTO-REFRESH attivo">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg>
+        </button>
+      </div>
+
+      <div class="fab-azioni">
+        <button class="fab fab-verde" id="btn-economico" type="button" title="Il più economico in zona" aria-label="Mostra il distributore più economico in zona">
+          <span class="euro" aria-hidden="true">€</span>
+        </button>
+        <button class="fab fab-blu" id="btn-vicino" type="button" title="Il più vicino" aria-label="Mostra il distributore più vicino">
+          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><rect x="5" y="4" width="9" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 7.5h5v3H7z" fill="currentColor"/><path d="M3.5 20h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 8.5h2a1.5 1.5 0 0 1 1.5 1.5v6a1.3 1.3 0 0 0 2.6 0V9.5L18 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </main>
+
+    <section class="pannello" id="pannello" aria-label="Distributori vicini" hidden>
+      <header class="pannello-testa">
+        <h2>Distributori vicini</h2>
+        <button class="chiudi" id="btn-chiudi" type="button" aria-label="Chiudi l'elenco e torna alla mappa">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+
+      <div class="pannello-corpo">
+        <div class="stato" id="stato" role="status" aria-live="polite">Cerco la tua posizione…</div>
+
+        <label class="auto" for="modo">
+          <span>PREZZO</span>
+          <select id="modo">
+            <option value="self" selected>Self</option>
+            <option value="servito">Servito</option>
+          </select>
+        </label>
+
+        <label class="auto" for="auto-refresh">
+          <span>AUTO-REFRESH</span>
+          <select id="auto-refresh">
+            <option value="0">0 · spento</option>
+            <option value="30">30 s</option>
+            <option value="60">60 s</option>
+            <option value="120" selected>120 s</option>
+          </select>
+        </label>
+
+        <label class="auto" for="suoni">
+          <span>SUONI</span>
+          <select id="suoni">
+            <option value="1" selected>Attivi</option>
+            <option value="0">Spenti</option>
+          </select>
+        </label>
+
+        <label class="auto" for="sfondo">
+          <span>MAPPA</span>
+          <select id="sfondo">
+            <option value="stradale" selected>Stradale</option>
+            <option value="satellite">Satellite</option>
+          </select>
+        </label>
+
+        <label class="auto" for="lettura" id="riga-lettura">
+          <span>LETTURA VOCALE</span>
+          <select id="lettura">
+            <option value="1" selected>Attiva</option>
+            <option value="0">Spenta</option>
+          </select>
+        </label>
+
+        <div class="sommario" id="sommario">
+          <div class="kpi kpi-reale"><b id="k-min">–</b><span>prezzo più<br>basso <small id="k-unita">€/l</small></span></div>
+          <div class="kpi kpi-segn"><b id="k-media" style="color:var(--attenzione)">–</b><span>prezzo<br>medio</span></div>
+          <div class="kpi kpi-osm"><b id="k-n">–</b><span>distributori<br>con prezzo</span></div>
+        </div>
+
+        <div class="filtri" role="group" aria-label="Ordine e filtri">
+          <button class="chip ordine" type="button" data-ordine="prezzo" aria-pressed="true">Per prezzo</button>
+          <button class="chip ordine" type="button" data-ordine="distanza" aria-pressed="false">Per distanza</button>
+          <span class="sep" aria-hidden="true"></span>
+          <button class="chip filtro" type="button" data-filtro="autostrada" aria-pressed="false">Senza autostrade</button>
+          <button class="chip filtro" type="button" data-filtro="recenti" aria-pressed="false">Solo prezzi recenti</button>
+        </div>
+
+        <ol class="lista" id="lista"></ol>
+
+        <footer class="fonti">
+          Prezzi: <a href="https://www.mimit.gov.it/it/open-data/elenco-dataset/carburanti-prezzi-praticati-e-anagrafica-degli-impianti" target="_blank" rel="noopener">MIMIT – Osservatorio prezzi carburanti</a>
+          (open data, prezzi comunicati dai gestori, aggiornati una volta al giorno).
+          Mappa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>.
+        </footer>
+        <button class="link-guida" id="btn-guida-elenco" type="button">Guida all'app →</button>
+      </div>
+    </section>
+
+    <section class="pannello guida" id="guida" aria-label="Guida all'app" hidden>
+      <header class="pannello-testa">
+        <h2>Guida</h2>
+        <button class="chiudi" id="btn-chiudi-guida" type="button" aria-label="Chiudi la guida e torna alla mappa">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+
+      <div class="pannello-corpo guida-corpo">
+        <p class="g-intro"><b>Distributori</b> ti mostra i distributori di carburante vicino a te con i prezzi pubblicati dal
+          Ministero delle Imprese e del Made in Italy (MIMIT), e ti dice a colpo d'occhio dove conviene fare rifornimento.</p>
+        <p class="g-versione" id="guida-versione"></p>
+
+        <nav class="g-indice" aria-label="Argomenti">
+          <a href="#g-mappa">Segnaposto</a><a href="#g-pulsanti">Pulsanti</a><a href="#g-elenco">Elenco e impostazioni</a>
+          <a href="#g-prezzi">I prezzi</a><a href="#g-consigli">Consigli</a>
+        </nav>
+
+        <section id="g-mappa">
+          <h3>I segnaposto sulla mappa</h3>
+          <ul class="g-lista">
+            <li><span class="g-segno"><span class="mk prezzo economico">1,739</span></span><div><b>Verde</b>: tra i più economici in zona (il terzo più basso dei prezzi).</div></li>
+            <li><span class="g-segno"><span class="mk prezzo medio">1,779</span></span><div><b>Giallo</b>: prezzo nella media della zona.</div></li>
+            <li><span class="g-segno"><span class="mk prezzo caro">1,849</span></span><div><b>Rosso</b>: tra i più cari in zona.</div></li>
+            <li><span class="g-segno"><span class="mk prezzo economico top">1,719</span></span><div><b>Bordo verde</b>: il più economico di tutti entro il raggio.</div></li>
+            <li><span class="g-segno"><span class="mk prezzo medio vecchio">1,759</span></span><div><b>Bordo tratteggiato, più chiaro</b>: il gestore non aggiorna il prezzo da più di 7 giorni, potrebbe non essere più valido.</div></li>
+            <li><span class="g-segno"><span class="mk nd"></span></span><div><b>Quadratino grigio</b>: distributore che non ha comunicato il prezzo del carburante scelto (o non lo vende).</div></li>
+            <li><span class="g-segno"><span class="io"></span></span><div><b>Punto azzurro</b>: sei tu. Il <b>cerchio tratteggiato</b> è il raggio di ricerca.</div></li>
+          </ul>
+          <p>Il numero è il prezzo al litro (al kg per il metano) del carburante scelto in alto, self o servito secondo l'impostazione PREZZO.</p>
+          <p>Tocca un segnaposto per aprire il <b>riquadro</b>: marchio, indirizzo, tutti i prezzi del distributore (self e servito),
+            quando sono stati comunicati e la distanza. L'app lo legge ad alta voce (se la lettura vocale è attiva).
+            Il pulsante <b>Portami qui</b> apre il navigatore.</p>
+        </section>
+
+        <section id="g-pulsanti">
+          <h3>I pulsanti</h3>
+          <ul class="g-lista">
+            <li><span class="g-segno"><span class="g-barra">Cerca un indirizzo…</span></span><div><b>Cerca</b>: scrivi una via o un paese per vedere i distributori lì invece che intorno a te.</div></li>
+            <li><span class="g-segno"><span class="g-barra corto">Benzina</span></span><div><b>Carburante</b>: benzina, gasolio, GPL o metano.</div></li>
+            <li><span class="g-segno"><span class="g-barra corto">5 km</span></span><div><b>Raggio</b>: quanto lontano cercare, 1, 2, 5 o 10 km.</div></li>
+            <li><span class="g-segno"><span class="g-fab"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></span></span><div><b>Posizione</b>: riporta la mappa su di te e la fa seguire mentre ti sposti.</div></li>
+            <li><span class="g-segno"><span class="g-fab nero"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="4.5" cy="6" r="1.6" fill="currentColor"/><circle cx="4.5" cy="12" r="1.6" fill="currentColor"/><circle cx="4.5" cy="18" r="1.6" fill="currentColor"/></svg></span></span><div><b>Elenco</b>: apre la pagina con tutti i distributori vicini e le impostazioni.</div></li>
+            <li><span class="g-segno"><span class="g-fab"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span><div><b>Aggiorna</b>: riscarica subito i prezzi.</div></li>
+            <li><span class="g-segno"><span class="g-fab occhio"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg></span></span><div><b>Occhio verde</b> (sotto il ?): lo schermo resta sempre acceso perché l'AUTO-REFRESH è attivo. Sparisce con AUTO-REFRESH a 0.</div></li>
+            <li><span class="g-segno"><span class="g-fab"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9.2 9a2.9 2.9 0 1 1 4.1 2.6c-.8.4-1.3 1.1-1.3 2v.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.3" fill="currentColor"/></svg></span></span><div><b>Guida</b> (in alto a sinistra sulla mappa): apre questa pagina.</div></li>
+            <li><span class="g-segno"><span class="g-fab verde"><b style="font:700 22px/1 var(--font-display)">€</b></span></span><div><b>Il più economico</b>: porta la mappa sul distributore più economico entro il raggio e ne apre il riquadro.</div></li>
+            <li><span class="g-segno"><span class="g-fab blu"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="5" y="4" width="9" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 7.5h5v3H7z" fill="currentColor"/><path d="M3.5 20h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 8.5h2a1.5 1.5 0 0 1 1.5 1.5v6a1.3 1.3 0 0 0 2.6 0V9.5L18 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span><div><b>Il più vicino</b>: porta la mappa sul distributore più vicino che ha il prezzo del carburante scelto.</div></li>
+          </ul>
+          <p>Per ingrandire o rimpicciolire la mappa usa due dita.</p>
+        </section>
+
+        <section id="g-elenco">
+          <h3>La pagina Elenco e le impostazioni</h3>
+          <p>In alto una riga dice cosa sta facendo l'app e di che giorno sono i prezzi.</p>
+          <dl class="g-def">
+            <dt>PREZZO</dt>
+            <dd><b>Self</b> o <b>Servito</b>: quale prezzo mostrare e confrontare.</dd>
+            <dt>AUTO-REFRESH</dt>
+            <dd>Ogni 30, 60 o 120 secondi l'app torna sulla tua posizione e ricalcola i distributori vicini. <b>0</b> la spegne. Parte da 120.
+              Finché è attivo, il telefono non va in standby e lo schermo resta acceso (compare l'occhio verde sulla mappa):
+              in macchina tieni il telefono in carica.</dd>
+            <dt>SUONI</dt>
+            <dd>Un <b>bing</b> quando l'aggiornamento è finito; <b>due note che scendono</b> se i prezzi non si possono scaricare.</dd>
+            <dt>MAPPA</dt>
+            <dd><b>Stradale</b> mostra la cartina di OpenStreetMap; <b>Satellite</b> le foto aeree con i nomi di strade e paesi.</dd>
+            <dt>LETTURA VOCALE</dt>
+            <dd>Quando tocchi un segnaposto, l'app legge ad alta voce marchio, indirizzo, prezzo e distanza.</dd>
+          </dl>
+          <p>Sotto trovi il prezzo più basso, il prezzo medio e quanti distributori hanno il prezzo nel raggio, poi l'<b>elenco</b>
+            ordinato <b>per prezzo</b> o <b>per distanza</b>. I filtri <b>Senza autostrade</b> e <b>Solo prezzi recenti</b> (aggiornati negli ultimi 7 giorni)
+            tolgono dalla mappa e dall'elenco i distributori che non ti interessano. Tocca una riga per vederla sulla mappa.</p>
+          <p>Le scelte restano memorizzate sul telefono.</p>
+        </section>
+
+        <section id="g-prezzi">
+          <h3>Da dove vengono i prezzi</h3>
+          <ul class="g-punti">
+            <li>I gestori sono obbligati a comunicare i prezzi al MIMIT, che li pubblica come <b>open data</b> ogni mattina
+              (i prezzi in vigore alle 8). L'app li scarica da sola più volte al giorno.</li>
+            <li>Il prezzo può cambiare durante la giornata: quello alla pompa è sempre quello che vale.</li>
+            <li>Nel riquadro vedi <b>quando</b> il gestore ha comunicato il prezzo l'ultima volta.</li>
+            <li>Fonte: MIMIT – Osservatorio prezzi carburanti.</li>
+          </ul>
+        </section>
+
+        <section id="g-consigli">
+          <h3>Consigli</h3>
+          <ul class="g-punti">
+            <li><b>Non usare il telefono mentre guidi.</b> Mettilo su un supporto, usa auto-refresh, suoni e lettura vocale, o fai usare l'app a chi è con te.</li>
+            <li>Su iPhone: in Safari tocca <b>Condividi → Aggiungi alla schermata Home</b> per usarla come un'app.</li>
+            <li>Al primo avvio consenti l'accesso alla <b>posizione</b>. Tocca la mappa una volta per abilitare suoni e voce.</li>
+            <li>Con l'interruttore del <b>silenzioso</b> attivo i suoni non si sentono.</li>
+            <li>Il numero di <b>versione</b> scritto sulla mappa ti dice se hai l'ultimo aggiornamento.</li>
+          </ul>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="config.js?v=1"></script>
+  <script src="core.js?v=1"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
