@@ -1,0 +1,44 @@
+name: Pubblica sito e aggiorna prezzi
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # ogni giorno (ora UTC): dopo l'uscita dei prezzi delle 8 e poi di nuovo nel pomeriggio
+    - cron: "47 7 * * *"
+    - cron: "47 9 * * *"
+    - cron: "47 15 * * *"
+  workflow_dispatch:         # pulsante "Run workflow" per farlo partire a mano
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  pubblica:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Scarica i prezzi dal MIMIT
+        timeout-minutes: 20
+        env:
+          SITO: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+        run: python3 aggiorna_prezzi.py
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: .
+
+      - id: deploy
+        uses: actions/deploy-pages@v5
