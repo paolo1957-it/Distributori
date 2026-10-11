@@ -10,7 +10,7 @@ self.addEventListener("install", (e) => {
     .then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", (e) => {
-  e.waitUntil(caches.keys().then((k) => Promise.all(k.filter((x) => x !== CACHE).map((x) => caches.delete(x)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then((k) => Promise.all(k.filter((x) => x !== CACHE && x.startsWith("distributori-")).map((x) => caches.delete(x)))).then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
