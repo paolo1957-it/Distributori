@@ -30,24 +30,3 @@ Per aggiornare i prezzi subito: Actions → *Pubblica sito e aggiorna prezzi* �
 
 Prezzi: MIMIT – Osservatorio prezzi carburanti, open data. Mappa: © OpenStreetMap.
 I prezzi sono quelli comunicati dai gestori; quello alla pompa è sempre quello che vale.
-
----
-
-# Salus (cartella `salute/`)
-
-Seconda web app, stesso aspetto e funzionamento di Distributori, che mostra i servizi sanitari vicino a te
-presi da OpenStreetMap: farmacie, parafarmacie, pronto soccorso, ospedali, ambulatori e cliniche, medici,
-dentisti, defibrillatori (DAE) e altri servizi (laboratori analisi, centri prelievi, fisioterapisti, consultori…).
-Viene pubblicata insieme a Distributori, all'indirizzo del sito seguito da `salute/`.
-
-- I segnaposto hanno un colore e un simbolo per tipo; un pallino verde o rosso dice se è aperto adesso,
-  calcolato dagli orari (`opening_hours`) scritti su OpenStreetMap.
-- Il pulsante rosso **PS** porta al pronto soccorso più vicino, quello verde alla farmacia più vicina aperta.
-- A ogni pubblicazione GitHub esegue `salute/aggiorna_salute.js` (Node): scarica da Overpass tutti i punti
-  sanitari d'Italia e li salva in `salute/dati/`, divisi in tessere da 0,25° come i prezzi. Per non pesare su
-  Overpass li riscarica al massimo una volta ogni 20 ore (o subito con *Run workflow*); nel frattempo ricopia
-  quelli già pubblicati. Se il sito non ha i dati, l'app li chiede direttamente a Overpass dal telefono.
-- I turni delle farmacie non sono su OpenStreetMap; la guida dell'app lo spiega.
-
-File: `index.html`, `style.css` (interfaccia), `core.js` (logica: tipi, orari, distanze), `app.js` (mappa, GPS,
-elenco), `config.js`, `aggiorna_salute.js`, `sw.js`, `manifest.webmanifest`, `icon.svg`.
