@@ -30,3 +30,25 @@ Per aggiornare i prezzi subito: Actions → *Pubblica sito e aggiorna prezzi* �
 
 Prezzi: MIMIT – Osservatorio prezzi carburanti, open data. Mappa: © OpenStreetMap.
 I prezzi sono quelli comunicati dai gestori; quello alla pompa è sempre quello che vale.
+
+---
+
+# Pets (cartella `pets/`)
+
+Seconda web app, stesso aspetto e funzionamento di Distributori, che mostra i servizi per gli animali domestici
+vicino a te presi da OpenStreetMap: pronto soccorso veterinari, veterinari e cliniche veterinarie, farmacie e
+parafarmacie veterinarie, negozi per animali, toelettature, aree cani, canili e rifugi, pensioni per animali e altro
+(addestramento, allevamenti). Viene pubblicata insieme a Distributori, all'indirizzo del sito seguito da `pets/`.
+
+- I segnaposto hanno un colore e un simbolo per tipo; un pallino verde o rosso dice se è aperto adesso,
+  calcolato dagli orari (`opening_hours`) scritti su OpenStreetMap.
+- Il pulsante rosso **PS** porta al pronto soccorso veterinario più vicino, quello verde (la zampa) al veterinario
+  più vicino aperto. Un veterinario è "pronto soccorso" se su OSM ha `emergency=yes`, "pronto soccorso" o "h24"
+  nel nome, oppure orario `24/7`.
+- A ogni pubblicazione GitHub esegue `pets/aggiorna_animali.js` (Node): scarica da Overpass tutti i punti
+  d'Italia e li salva in `pets/dati/`, divisi in tessere da 0,25°. Per non pesare su Overpass li riscarica al
+  massimo una volta ogni 20 ore (o subito con *Run workflow*); nel frattempo ricopia quelli già pubblicati.
+  Se il sito non ha i dati, l'app li chiede direttamente a Overpass dal telefono.
+
+File: `index.html`, `style.css` (interfaccia), `core.js` (logica: tipi, orari, distanze), `app.js` (mappa, GPS,
+elenco), `config.js`, `aggiorna_animali.js`, `sw.js`, `manifest.webmanifest`, `icon.svg`.

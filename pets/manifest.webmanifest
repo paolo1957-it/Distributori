@@ -1,0 +1,15 @@
+{
+  "name": "Pets",
+  "short_name": "Pets",
+  "description": "Veterinari, pronto soccorso veterinari, negozi per animali, aree cani e canili vicino a te, da OpenStreetMap",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f5f9",
+  "theme_color": "#7a4210",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
