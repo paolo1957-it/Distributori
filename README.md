@@ -26,6 +26,10 @@ Per aggiornare i prezzi subito: Actions → *Pubblica sito e aggiorna prezzi* �
 - `aggiorna_prezzi.py`, `.github/workflows/pubblica.yml`: scaricamento dei prezzi e pubblicazione
 - `sw.js`, `manifest.webmanifest`, `icon.svg`: installazione come app
 
+## Statistiche d'uso
+
+Statistiche anonime, senza cookie, con GoatCounter: https://distributori.goatcounter.com
+
 ## Fonte dei dati
 
 Prezzi: MIMIT – Osservatorio prezzi carburanti, open data. Mappa: © OpenStreetMap.
