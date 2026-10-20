@@ -29,6 +29,14 @@ BASE = "https://www.mimit.gov.it/images/exportCSV/"
 ANAGRAFICA = BASE + "anagrafica_impianti_attivi.csv"
 PREZZI = BASE + "prezzo_alle_8.csv"
 USER_AGENT = "Distributori/1.0 (app web personale; dati MIMIT open data)"
+# Da ottobre 2026 il MIMIT lascia scadere le richieste da GitHub Actions:
+# ci presentiamo come un browser normale.
+INTESTAZIONI_MIMIT = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+    "Accept": "text/csv,text/plain,*/*",
+    "Accept-Language": "it-IT,it;q=0.9",
+}
 
 CARTELLA = "dati"
 PASSO = 0.25          # lato della tessera in gradi
@@ -44,8 +52,8 @@ def scarica(url, tentativi=4, minimo=1000):
     ultimo = None
     for i in range(tentativi):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-            with urllib.request.urlopen(req, timeout=120) as r:
+            req = urllib.request.Request(url, headers=INTESTAZIONI_MIMIT)
+            with urllib.request.urlopen(req, timeout=180) as r:
                 dati = r.read()
             if len(dati) < minimo:
                 raise ValueError(f"file troppo piccolo ({len(dati)} byte)")
