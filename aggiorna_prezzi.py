@@ -5,8 +5,10 @@ nel sito, divisi in "tessere" da 0,25 gradi (circa 28 × 20 km).
 
 Lo esegue GitHub da solo più volte al giorno (vedi .github/workflows/pubblica.yml).
 I dati NON vengono salvati nel repository: finiscono solo nel sito pubblicato.
-Se il MIMIT non risponde, lo script recupera i dati già pubblicati sul sito, così un
-aggiornamento del codice non lascia mai il sito senza prezzi.
+Se il MIMIT non risponde, lo script usa la copia dei CSV che il computer di paolo carica
+alle 12 sulla release "dati-mimit" (vedi pc/scarica_mimit.ps1), se è più recente dei dati
+già pubblicati; altrimenti recupera i dati già pubblicati sul sito, così un aggiornamento
+del codice non lascia mai il sito senza prezzi.
 
 File del MIMIT (testo CSV, una riga "Estrazione del …", poi l'intestazione):
   anagrafica_impianti_attivi.csv  idImpianto|Gestore|Bandiera|Tipo Impianto|Nome Impianto|
@@ -29,6 +31,14 @@ BASE = "https://www.mimit.gov.it/images/exportCSV/"
 ANAGRAFICA = BASE + "anagrafica_impianti_attivi.csv"
 PREZZI = BASE + "prezzo_alle_8.csv"
 USER_AGENT = "Distributori/1.0 (app web personale; dati MIMIT open data)"
+# Da ottobre 2026 il MIMIT lascia scadere le richieste da GitHub Actions:
+# ci presentiamo come un browser normale.
+INTESTAZIONI_MIMIT = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+    "Accept": "text/csv,text/plain,*/*",
+    "Accept-Language": "it-IT,it;q=0.9",
+}
 
 CARTELLA = "dati"
 PASSO = 0.25          # lato della tessera in gradi
@@ -40,11 +50,11 @@ CATEGORIE = {"benzina": "B", "gasolio": "G", "gpl": "L", "metano": "M"}
 
 # ---------- Download ----------
 
-def scarica(url, tentativi=4, minimo=1000):
+def scarica(url, tentativi=3, minimo=1000):
     ultimo = None
     for i in range(tentativi):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+            req = urllib.request.Request(url, headers=INTESTAZIONI_MIMIT)
             with urllib.request.urlopen(req, timeout=120) as r:
                 dati = r.read()
             if len(dati) < minimo:
@@ -225,25 +235,55 @@ def recupera_dal_sito(sito):
     print(f"  recuperate {len(indice['tessere'])} tessere, estrazione del {indice.get('estrazione')}")
 
 
+def elabora(dati_anagrafica, dati_prezzi):
+    est_a, anag = leggi_csv(dati_anagrafica)
+    print(f"  {len(anag)} righe (estrazione {est_a})")
+    est_p, prezzi = leggi_csv(dati_prezzi)
+    print(f"  {len(prezzi)} righe (estrazione {est_p})")
+    impianti = costruisci(anag, prezzi)
+    if len(impianti) < 1000:
+        raise ValueError(f"troppo pochi distributori ({len(impianti)}): file del MIMIT incompleti?")
+    return impianti, est_p or est_a or datetime.now().strftime("%Y-%m-%d")
+
+
+def estrazione_sul_sito(sito):
+    try:
+        sito = sito.rstrip("/") + "/"
+        return json.loads(scarica(f"{sito}{CARTELLA}/indice.json", 2, 20).decode("utf-8")).get("estrazione") or ""
+    except Exception as ex:
+        print(f"  indice del sito non letto: {ex}")
+        return ""
+
+
 def main():
     try:
-        print("Scarico l'anagrafica dei distributori…")
-        est_a, anag = leggi_csv(scarica(ANAGRAFICA))
-        print(f"  {len(anag)} righe (estrazione {est_a})")
-        print("Scarico i prezzi…")
-        est_p, prezzi = leggi_csv(scarica(PREZZI))
-        print(f"  {len(prezzi)} righe (estrazione {est_p})")
-        impianti = costruisci(anag, prezzi)
-        if len(impianti) < 1000:
-            raise ValueError(f"troppo pochi distributori ({len(impianti)}): file del MIMIT incompleti?")
-        salva(impianti, est_p or est_a or datetime.now().strftime("%Y-%m-%d"))
+        print("Scarico i file dal MIMIT…")
+        impianti, estrazione = elabora(scarica(ANAGRAFICA), scarica(PREZZI))
+        salva(impianti, estrazione)
+        return
     except Exception as ex:
         print(f"MIMIT non disponibile: {ex}")
+
+    copia = os.environ.get("COPIA_PC")
+    if copia:
         try:
-            recupera_dal_sito(os.environ.get("SITO"))
-        except Exception as ex2:
-            print(f"Nessun dato disponibile: {ex2}. Il sito resta com'era.")
-            sys.exit(1)
+            copia = copia.rstrip("/") + "/"
+            print(f"Provo la copia caricata dal computer: {copia}")
+            impianti, estrazione = elabora(scarica(copia + "anagrafica_impianti_attivi.csv", 2),
+                                           scarica(copia + "prezzo_alle_8.csv", 2))
+            sul_sito = estrazione_sul_sito(os.environ.get("SITO") or "")
+            if estrazione >= sul_sito:
+                salva(impianti, estrazione)
+                return
+            print(f"  la copia ({estrazione}) è più vecchia del sito ({sul_sito}): non la uso")
+        except Exception as ex:
+            print(f"Copia dal computer non disponibile: {ex}")
+
+    try:
+        recupera_dal_sito(os.environ.get("SITO"))
+    except Exception as ex2:
+        print(f"Nessun dato disponibile: {ex2}. Il sito resta com'era.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

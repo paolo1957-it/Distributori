@@ -32,6 +32,7 @@ jobs:
         timeout-minutes: 20
         env:
           SITO: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          COPIA_PC: https://github.com/${{ github.repository }}/releases/download/dati-mimit/
         run: python3 aggiorna_prezzi.py
 
       - uses: actions/configure-pages@v6
