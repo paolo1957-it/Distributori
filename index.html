@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <div class="app">
@@ -115,6 +115,7 @@
           <span>MAPPA</span>
           <select id="sfondo">
             <option value="stradale" selected>Stradale</option>
+            <option value="grande">Stradale, nomi grandi</option>
             <option value="satellite">Satellite</option>
           </select>
         </label>
@@ -215,7 +216,7 @@
             <dt>SUONI</dt>
             <dd>A ogni aggiornamento l'app dice <b>"Mappa sempre attiva - Refresh"</b>; <b>due note che scendono</b> se i prezzi non si possono scaricare.</dd>
             <dt>MAPPA</dt>
-            <dd><b>Stradale</b> mostra la cartina di OpenStreetMap; <b>Satellite</b> le foto aeree con i nomi di strade e paesi.</dd>
+            <dd><b>Stradale</b> mostra la cartina di OpenStreetMap; <b>Stradale, nomi grandi</b> la stessa cartina con i nomi delle vie scritti il doppio più grandi (un po' meno nitida); <b>Satellite</b> le foto aeree con i nomi di strade e paesi.</dd>
             <dt>LETTURA VOCALE</dt>
             <dd>Quando tocchi un segnaposto, l'app legge ad alta voce marchio, indirizzo, prezzo e distanza.</dd>
           </dl>
@@ -253,9 +254,9 @@
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="config.js?v=5"></script>
-  <script src="core.js?v=5"></script>
-  <script src="app.js?v=5"></script>
+  <script src="config.js?v=6"></script>
+  <script src="core.js?v=6"></script>
+  <script src="app.js?v=6"></script>
 
   <!-- Statistiche d'uso anonime, senza cookie: https://distributori.goatcounter.com -->
   <script data-goatcounter="https://distributori.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
