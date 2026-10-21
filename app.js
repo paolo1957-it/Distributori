@@ -37,6 +37,12 @@
       maxZoom: 19,
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Prezzi: MIMIT'
     }),
+    // Stessa cartina, ma ogni tessera è disegnata grande il doppio (si usa quella del livello di zoom
+    // precedente): così i nomi delle vie si leggono meglio. L'immagine è un po' meno nitida.
+    grande: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19, tileSize: 512, zoomOffset: -1,
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Prezzi: MIMIT'
+    }),
     satellite: L.layerGroup([
       L.tileLayer(ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}", {
         maxZoom: 19, maxNativeZoom: 19,
@@ -46,7 +52,8 @@
       L.tileLayer(ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 })
     ])
   };
-  let sfondoAttivo = leggiPref("sfondo", "stradale") === "satellite" ? "satellite" : "stradale";
+  let sfondoAttivo = leggiPref("sfondo", "stradale");
+  if (!sfondi[sfondoAttivo]) sfondoAttivo = "stradale";
   function impostaSfondo(nome) {
     Object.values(sfondi).forEach((l) => mappa.removeLayer(l));
     sfondoAttivo = sfondi[nome] ? nome : "stradale";
