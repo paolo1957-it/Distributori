@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $Repo     = "paolo1957-it/distributori"
-$Sito     = "https://paolo1957-it.github.io/distributori/dati/indice.json"
+$Sito     = "https://paolo1957-it.github.io/Distributori/dati/indice.json"
 $Mimit    = "https://www.mimit.gov.it/images/exportCSV/"
 $File     = @("anagrafica_impianti_attivi.csv", "prezzo_alle_8.csv")
 $Tag      = "dati-mimit"
