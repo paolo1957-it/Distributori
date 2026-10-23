@@ -255,11 +255,23 @@ def estrazione_sul_sito(sito):
         return ""
 
 
+def scrivi_esito(nuovi, estrazione, fonte, prima):
+    """Lascia al workflow una riga "nuovi|vecchi;estrazione;fonte" per la notifica sull'iPhone."""
+    file = os.environ.get("ESITO")
+    if not file:
+        return
+    stato = "nuovi" if nuovi and estrazione and estrazione > (prima or "") else "vecchi"
+    with open(file, "w", encoding="utf-8") as f:
+        f.write(f"{stato};{estrazione or ''};{fonte}\n")
+
+
 def main():
+    prima = estrazione_sul_sito(os.environ.get("SITO") or "") if os.environ.get("SITO") else ""
     try:
         print("Scarico i file dal MIMIT…")
         impianti, estrazione = elabora(scarica(ANAGRAFICA), scarica(PREZZI))
         salva(impianti, estrazione)
+        scrivi_esito(True, estrazione, "MIMIT", prima)
         return
     except Exception as ex:
         print(f"MIMIT non disponibile: {ex}")
@@ -271,9 +283,10 @@ def main():
             print(f"Provo la copia caricata dal computer: {copia}")
             impianti, estrazione = elabora(scarica(copia + "anagrafica_impianti_attivi.csv", 2),
                                            scarica(copia + "prezzo_alle_8.csv", 2))
-            sul_sito = estrazione_sul_sito(os.environ.get("SITO") or "")
+            sul_sito = prima
             if estrazione >= sul_sito:
                 salva(impianti, estrazione)
+                scrivi_esito(True, estrazione, "computer", prima)
                 return
             print(f"  la copia ({estrazione}) è più vecchia del sito ({sul_sito}): non la uso")
         except Exception as ex:
@@ -281,6 +294,7 @@ def main():
 
     try:
         recupera_dal_sito(os.environ.get("SITO"))
+        scrivi_esito(False, prima, "sito", prima)
     except Exception as ex2:
         print(f"Nessun dato disponibile: {ex2}. Il sito resta com'era.")
         sys.exit(1)
