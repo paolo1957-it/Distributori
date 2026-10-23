@@ -22,6 +22,11 @@ concurrency:
 jobs:
   pubblica:
     runs-on: ubuntu-latest
+    env:
+      # Notifica sull'iPhone con l'app ntfy: il nome del canale sta nel secret NTFY_TOPIC.
+      # Se il secret non c'è, la notifica viene saltata.
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      ESITO: /tmp/esito.txt
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
@@ -43,3 +48,42 @@ jobs:
 
       - id: deploy
         uses: actions/deploy-pages@v5
+
+      # ✅ prezzi nuovi pubblicati · ❌ qualcosa è andato storto ·
+      # ⚠️ all'ultimo giro del giorno (15:47 UTC) i prezzi sono ancora quelli vecchi
+      - name: Notifica sull'iPhone
+        if: always() && env.NTFY_TOPIC != ''
+        env:
+          STATO_JOB: ${{ job.status }}
+          ORARIO: ${{ github.event.schedule }}
+          LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          from datetime import datetime, timedelta
+          from zoneinfo import ZoneInfo
+          try:
+              stato, est, fonte = open(os.environ["ESITO"], encoding="utf-8").read().strip().split(";")
+          except Exception:
+              stato, est, fonte = "", "", ""
+          giorno = lambda d: f"{d[8:10]}/{d[5:7]}" if len(d) == 10 else (d or "?")
+          ieri = (datetime.now(ZoneInfo("Europe/Rome")) - timedelta(days=1)).strftime("%Y-%m-%d")
+          msg = None
+          if os.environ["STATO_JOB"] != "success" or not stato:
+              msg = ("Aggiornamento fallito", "Tocca per vedere cosa è successo su GitHub.", "x", 4)
+          elif stato == "nuovi":
+              da = "dal computer" if fonte == "computer" else "dal MIMIT"
+              msg = ("Prezzi aggiornati", f"Pubblicati i prezzi del {giorno(est)} ({da}).", "white_check_mark", 3)
+          elif os.environ.get("ORARIO") == "47 15 * * *" and est < ieri:
+              msg = ("Prezzi non aggiornati", f"Oggi niente prezzi nuovi: il sito resta al {giorno(est)}.", "warning", 4)
+          if msg:
+              titolo, testo, tag, prio = msg
+              corpo = {"topic": os.environ["NTFY_TOPIC"], "title": "Distributori: " + titolo,
+                       "message": testo, "tags": [tag], "priority": prio, "click": os.environ["LINK"]}
+              req = urllib.request.Request("https://ntfy.sh/", data=json.dumps(corpo).encode(),
+                                           headers={"Content-Type": "application/json"})
+              urllib.request.urlopen(req, timeout=30).read()
+              print("Notifica inviata:", titolo, "-", testo)
+          else:
+              print("Niente da notificare")
+          PY

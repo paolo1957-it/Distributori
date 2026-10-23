@@ -26,6 +26,14 @@ Per aggiornare i prezzi subito: Actions → *Pubblica sito e aggiorna prezzi* �
 - `aggiorna_prezzi.py`, `.github/workflows/pubblica.yml`: scaricamento dei prezzi e pubblicazione
 - `sw.js`, `manifest.webmanifest`, `icon.svg`: installazione come app
 
+## Notifica sull'iPhone
+
+Alla fine di ogni giro il workflow può mandare una notifica con l'app gratuita **ntfy**
+(App Store): ✅ prezzi nuovi pubblicati, ❌ aggiornamento fallito, ⚠️ all'ultimo giro del giorno
+i prezzi sono ancora vecchi. Per attivarla: Settings → Secrets and variables → Actions →
+*New repository secret* `NTFY_TOPIC` con il nome del canale, e nell'app ntfy iscriversi allo
+stesso canale. Senza il secret la notifica viene saltata.
+
 ## Statistiche d'uso
 
 Statistiche anonime, senza cookie, con GoatCounter: https://distributori.goatcounter.com
