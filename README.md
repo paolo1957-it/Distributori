@@ -24,7 +24,7 @@ Per aggiornare i prezzi subito: Actions â†’ *Pubblica sito e aggiorna prezzi* â†
 - `app.js`: mappa, GPS, elenco, impostazioni
 - `config.js`: impostazioni iniziali e numero di versione
 - `aggiorna_prezzi.py`, `.github/workflows/pubblica.yml`: scaricamento dei prezzi e pubblicazione
-- `sw.js`, `manifest.webmanifest`, `icon.svg`: installazione come app
+- `sw.js`, `manifest.webmanifest`, icone PNG (`icon-*.png`, `apple-touch-icon.png`, `favicon-64.png`): installazione come app
 
 ## Notifica sull'iPhone
 
