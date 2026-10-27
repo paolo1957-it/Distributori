@@ -526,6 +526,14 @@
     $("btn-elenco").setAttribute("aria-expanded", "false");
     $("btn-elenco").focus();
   }
+  // Condividi su WhatsApp: messaggio già scritto con il link all'app (?ref=whatsapp per GoatCounter)
+  const linkApp = location.origin + location.pathname + "?ref=whatsapp";
+  $("btn-condividi").href = "https://wa.me/?text=" + encodeURIComponent(
+    "Ti consiglio Distributori: trovi i distributori di carburante vicino a te con i prezzi aggiornati. " +
+    "Gratis e senza registrazione: " + linkApp);
+  $("btn-condividi").addEventListener("click", () => {
+    if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: "condividi-whatsapp", title: "Condividi su WhatsApp", event: true });
+  });
   $("btn-elenco").addEventListener("click", apriElenco);
   $("btn-chiudi").addEventListener("click", chiudiElenco);
 
@@ -653,17 +661,8 @@
   // Ogni 15 minuti controlla se il sito ha prezzi nuovi
   setInterval(() => { if (stato.centro && !stato.caricando && !document.hidden) carica(false, true); }, 15 * 60000);
 
-  // Numero di versione lungo la diagonale della mappa
-  $("filigrana-testo").textContent = "Versione " + (cfg.versione || "");
-  function posizionaFiligrana() {
-    const f = $("filigrana"), w = f.clientWidth, h = f.clientHeight;
-    if (!w || !h) return;
-    const diag = Math.hypot(w, h);
-    f.style.setProperty("--fil-ang", (Math.atan2(h, w) * 180 / Math.PI).toFixed(1) + "deg");
-    f.style.setProperty("--fil-size", Math.round(diag / 10.5) + "px");
-  }
-  posizionaFiligrana();
-  window.addEventListener("resize", posizionaFiligrana);
+  // Numero di versione nell'ultima riga della pagina Elenco
+  $("elenco-versione").textContent = "Versione " + (cfg.versione || "");
 
   $("btn-economico").disabled = true;
   $("btn-vicino").disabled = true;

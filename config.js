@@ -2,8 +2,8 @@
  * Distributori – configurazione
  */
 window.DISTRIBUTORI_CONFIG = {
-  // Versione dell'app, mostrata in diagonale sulla mappa. Aumentala a ogni aggiornamento.
-  versione: "10",
+  // Versione dell'app, mostrata in fondo alla pagina Elenco. Aumentala a ogni aggiornamento.
+  versione: "11",
 
   // Raggio di ricerca iniziale in metri (modificabile anche dall'app)
   raggioMetri: 5000,
