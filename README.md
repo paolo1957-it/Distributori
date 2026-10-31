@@ -40,5 +40,5 @@ Statistiche anonime, senza cookie, con GoatCounter: https://distributori.goatcou
 
 ## Fonte dei dati
 
-Prezzi: MIMIT – Osservatorio prezzi carburanti, open data. Mappa: © OpenStreetMap.
+Prezzi: MIMIT – Osservatorio prezzi carburanti, open data. Mappa e ricerca indirizzi: © OpenStreetMap e chi contribuisce (ODbL).
 I prezzi sono quelli comunicati dai gestori; quello alla pompa è sempre quello che vale.
