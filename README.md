@@ -1,7 +1,7 @@
-# Distributori
+# Qui-Distributori
 
 Web app per il telefono che mostra i distributori di carburante vicino a te con i prezzi
-pubblicati dal MIMIT (Osservatorio prezzi carburanti, open data). Stesso aspetto e funzionamento di PostoLibero.
+pubblicati dal MIMIT (Osservatorio prezzi carburanti, open data). Stesso aspetto e funzionamento di Qui-Parking.
 
 ## Come funziona
 
