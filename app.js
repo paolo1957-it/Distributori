@@ -1,6 +1,6 @@
 /*
  * Distributori – interfaccia: mappa, posizione, caricamento prezzi, elenco.
- * Stessa struttura di PostoLibero.
+ * Stessa struttura di Qui-Parking.
  */
 (function () {
   "use strict";
@@ -530,7 +530,7 @@
   // Condividi su WhatsApp: messaggio già scritto con il link all'app (?ref=whatsapp per GoatCounter)
   const linkApp = location.origin + location.pathname + "?ref=whatsapp";
   $("btn-condividi").href = "https://wa.me/?text=" + encodeURIComponent(
-    "Ti consiglio Distributori: trovi i distributori di carburante vicino a te con i prezzi aggiornati. " +
+    "Ti consiglio Qui-Distributori: trovi i distributori di carburante vicino a te con i prezzi aggiornati. " +
     "Gratis e senza registrazione: " + linkApp);
   $("btn-condividi").addEventListener("click", () => {
     if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: "condividi-whatsapp", title: "Condividi su WhatsApp", event: true });
