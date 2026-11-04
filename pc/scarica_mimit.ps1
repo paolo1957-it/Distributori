@@ -5,6 +5,8 @@
 #  3. li carica sulla release "dati-mimit" del repository (non sono commit);
 #  4. fa partire il workflow pubblica.yml, che li elabora e pubblica il sito.
 # Il token GitHub sta in token.txt nella stessa cartella (mai nel repository).
+# A ogni giro, anche quando non c'e niente da fare o qualcosa va storto, scrive l'esito
+# nella descrizione della release "dati-mimit": il Pannello (quivicino.github.io/Pannello) lo legge da li.
 
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -24,6 +26,35 @@ function Scrivi($testo) {
     Write-Host $riga
     Add-Content -Path $Registro -Value $riga -Encoding UTF8
 }
+
+# La release "dati-mimit": la crea la prima volta.
+function Release($gh) {
+    try {
+        return Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/tags/$Tag" -Headers $gh
+    } catch {
+        $corpo = @{ tag_name = $Tag; name = "Dati MIMIT dal computer"; body = "Copia dei CSV del MIMIT caricata da pc/scarica_mimit.ps1."; prerelease = $true } | ConvertTo-Json
+        return Invoke-RestMethod -Method Post -Uri "https://api.github.com/repos/$Repo/releases" -Headers $gh -Body $corpo -ContentType "application/json"
+    }
+}
+
+# Scrive l'esito del giro nella descrizione della release, in una riga che il Pannello sa leggere:
+#   pc-controllo: 2026-11-04T11:00:00Z | ok | testo
+# esito = ok (dati caricati o sito gia aggiornato) oppure errore. Se non ci riesce, lo annota solo nel registro.
+function Segnala($gh, $esito, $testo) {
+    if (-not $gh) { return }
+    try {
+        $rel = Release $gh
+        $ora = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+        $riga = "pc-controllo: $ora | $esito | $testo"
+        $altre = @(("" + $rel.body) -split "`r?`n" | Where-Object { $_ -notmatch "^pc-controllo:" -and $_.Trim() -ne "" })
+        $corpo = @{ body = (@($altre) + "" + $riga) -join "`n" } | ConvertTo-Json
+        Invoke-RestMethod -Method Patch -Uri "https://api.github.com/repos/$Repo/releases/$($rel.id)" -Headers $gh -Body ([Text.Encoding]::UTF8.GetBytes($corpo)) -ContentType "application/json; charset=utf-8" | Out-Null
+    } catch {
+        Scrivi "Esito non scritto su GitHub: $($_.Exception.Message)"
+    }
+}
+
+$gh = $null
 
 try {
     $Passo = "lettura di token.txt"
@@ -46,18 +77,13 @@ try {
     $estrazione = $Matches[1]
     if ($sulSito -and $estrazione -le $sulSito) {
         Scrivi "Sito gia aggiornato (sito $sulSito, MIMIT $estrazione): niente da fare."
+        Segnala $gh "ok" "sito gia aggiornato (prezzi del $sulSito)"
         exit 0
     }
 
     # 3. release "dati-mimit": la creo la prima volta, poi sostituisco i file
     $Passo = "lettura della release su GitHub (controlla il token)"
-    try {
-        $rel = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/tags/$Tag" -Headers $gh
-    } catch {
-        $Passo = "creazione della release su GitHub (al token serve Contents: Read and write)"
-        $corpo = @{ tag_name = $Tag; name = "Dati MIMIT dal computer"; body = "Copia dei CSV del MIMIT caricata da pc/scarica_mimit.ps1."; prerelease = $true } | ConvertTo-Json
-        $rel = Invoke-RestMethod -Method Post -Uri "https://api.github.com/repos/$Repo/releases" -Headers $gh -Body $corpo -ContentType "application/json"
-    }
+    $rel = Release $gh
     $Passo = "caricamento dei file su GitHub (al token serve Contents: Read and write)"
     foreach ($a in $rel.assets) {
         if ($File -contains $a.name) {
@@ -75,7 +101,9 @@ try {
     Invoke-RestMethod -Method Post -Uri "https://api.github.com/repos/$Repo/actions/workflows/pubblica.yml/dispatches" -Headers $gh -Body $corpo -ContentType "application/json" | Out-Null
 
     Scrivi "Caricati i CSV del MIMIT (estrazione $estrazione, sul sito c'era $sulSito) e avviata la pubblicazione."
+    Segnala $gh "ok" "caricati i prezzi del $estrazione"
 } catch {
     Scrivi "ERRORE durante $($Passo): $($_.Exception.Message)"
+    Segnala $gh "errore" ("durante " + $Passo + ": " + $_.Exception.Message)
     exit 1
 }
