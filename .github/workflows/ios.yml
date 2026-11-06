@@ -1,0 +1,41 @@
+name: App iOS (CarPlay)
+
+# Compila l'app iOS e ne esegue i test su un Mac di GitHub (gratis per i repository pubblici).
+# Non firma l'app: serve solo a controllare che il codice compili e che la logica sia giusta.
+on:
+  pull_request:
+    paths: ["ios/**", ".github/workflows/ios.yml"]
+  push:
+    branches: [main]
+    paths: ["ios/**", ".github/workflows/ios.yml"]
+  workflow_dispatch:
+
+jobs:
+  compila:
+    runs-on: macos-15
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installa XcodeGen
+        run: brew install xcodegen
+
+      - name: Genera il progetto Xcode
+        run: xcodegen generate
+
+      - name: Compila ed esegue i test sul simulatore
+        run: |
+          xcodebuild -version
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          dev = json.load(sys.stdin)["devices"]
+          print(next(d["udid"] for k, v in dev.items() if "iOS" in k for d in v if d["name"].startswith("iPhone")))')
+          echo "Simulatore: $UDID"
+          xcodebuild test \
+            -project QuiDistributori.xcodeproj \
+            -scheme QuiDistributori \
+            -destination "id=$UDID" \
+            CODE_SIGNING_ALLOWED=NO

@@ -1,0 +1,55 @@
+# Progetto Xcode generato con XcodeGen: `brew install xcodegen` e poi `xcodegen generate` in questa cartella.
+name: QuiDistributori
+options:
+  bundleIdPrefix: it.quivicino
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: it
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  QuiDistributori:
+    type: application
+    platform: iOS
+    sources:
+      - path: QuiDistributori
+        excludes:
+          - "**/*.entitlements"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: it.quivicino.distributori
+        PRODUCT_NAME: QuiDistributori
+        INFOPLIST_FILE: QuiDistributori/Info.plist
+        CODE_SIGN_ENTITLEMENTS: QuiDistributori/QuiDistributori.entitlements
+        CODE_SIGN_STYLE: Automatic
+        # Scrivi qui il Team ID del tuo account Apple Developer (Xcode › Signing & Capabilities)
+        DEVELOPMENT_TEAM: ""
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
+  QuiDistributoriTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: QuiDistributoriTests
+    dependencies:
+      - target: QuiDistributori
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: it.quivicino.distributori.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  QuiDistributori:
+    build:
+      targets:
+        QuiDistributori: all
+        QuiDistributoriTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - QuiDistributoriTests
