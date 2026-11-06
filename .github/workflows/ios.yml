@@ -4,10 +4,10 @@ name: App iOS (CarPlay)
 # Non firma l'app: serve solo a controllare che il codice compili e che la logica sia giusta.
 on:
   pull_request:
-    paths: ["ios/**", ".github/workflows/ios.yml"]
+    paths: ["ios/**", ".github/workflows/ios.yml", ".github/workflows/testflight.yml"]
   push:
     branches: [main]
-    paths: ["ios/**", ".github/workflows/ios.yml"]
+    paths: ["ios/**", ".github/workflows/ios.yml", ".github/workflows/testflight.yml"]
   workflow_dispatch:
 
 jobs:
@@ -39,3 +39,11 @@ jobs:
             -scheme QuiDistributori \
             -destination "id=$UDID" \
             CODE_SIGNING_ALLOWED=NO
+
+      # Stessa compilazione che fa "Pubblica su TestFlight", ma senza firma
+      - name: Compila la versione Release per iPhone (senza firma)
+        run: |
+          xcodebuild archive \
+            -project QuiDistributori.xcodeproj -scheme QuiDistributori -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/prova.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGN_ENTITLEMENTS=

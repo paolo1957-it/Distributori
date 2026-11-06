@@ -49,25 +49,20 @@ Ogni modifica a questa cartella viene compilata e provata da GitHub su un Mac
    *"Qui-Distributori shows nearby fuel stations with official prices from the Italian Ministry
    (MIMIT open data), sorted by price, and starts navigation to the chosen station."*
    La risposta di Apple può richiedere da qualche giorno a qualche settimana.
-3. **Un Mac con Xcode** (anche in prestito o a noleggio per qualche ora). Poi, in questa cartella:
-   ```
-   brew install xcodegen
-   xcodegen generate
-   open QuiDistributori.xcodeproj
-   ```
-   In Xcode › *Signing & Capabilities* scegli il tuo Team. Il bundle id proposto è
-   `it.quivicino.distributori` (si può cambiare in `project.yml`).
-4. **Prova senza auto**: in Xcode avvia l'app sul simulatore iPhone, poi dal menu del simulatore
-   *I/O › External Displays › CarPlay*. Sul simulatore funziona anche prima della risposta di Apple.
-5. **Prova in auto**: serve l'autorizzazione di Apple attiva sul profilo dell'app; poi
-   l'app si installa sull'iPhone da Xcode o con TestFlight.
+3. **Firma e installazione senza Mac**: il workflow *Pubblica su TestFlight* firma l'app su un Mac
+   di GitHub e la carica su TestFlight; sull'iPhone la installi con l'app TestFlight.
+   Istruzioni passo passo in [`TESTFLIGHT.md`](TESTFLIGHT.md). Finché Apple non concede
+   l'autorizzazione si pubblica la versione senza CarPlay (utile per provare la firma e l'app sul telefono).
+4. **Prova in auto**: dopo l'autorizzazione di Apple si aggiungono certificato e profilo CarPlay
+   (passo I di `TESTFLIGHT.md`) e si pubblica con CarPlay acceso.
 
-Se non hai un Mac, si può far firmare e caricare l'app su TestFlight direttamente da GitHub
-(un Mac di GitHub lo fa al posto tuo): serve aggiungere i certificati Apple come *secret* del
-repository. È un passo successivo, da fare quando Apple avrà concesso l'autorizzazione.
+Con un Mac aggiornato (macOS 15 o successivo) si può anche aprire il progetto in Xcode
+(`brew install xcodegen && xcodegen generate`) e provare CarPlay sul simulatore
+(*I/O › External Displays › CarPlay*).
 
 ## File
 
+- `TESTFLIGHT.md`, `script/testflight.sh`, `.github/workflows/testflight.yml`: firma e invio a TestFlight da GitHub
 - `project.yml`: descrizione del progetto per XcodeGen (il file `.xcodeproj` non si salva nel repository)
 - `QuiDistributori/Info.plist`: scene iPhone e CarPlay, testo della richiesta di posizione
 - `QuiDistributori/QuiDistributori.entitlements`: autorizzazione CarPlay *Fueling*

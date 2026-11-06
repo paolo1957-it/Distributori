@@ -1,0 +1,44 @@
+name: Pubblica su TestFlight
+
+# Si avvia a mano: Actions › Pubblica su TestFlight › Run workflow.
+# Firma l'app iOS su un Mac di GitHub e la carica su TestFlight. Istruzioni in ios/TESTFLIGHT.md.
+on:
+  workflow_dispatch:
+    inputs:
+      carplay:
+        description: "Includi CarPlay (solo dopo l'autorizzazione di Apple, con certificato e profilo nei secret)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  testflight:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installa XcodeGen
+        run: brew install xcodegen
+
+      - name: Firma e carica su TestFlight
+        env:
+          CARPLAY: ${{ inputs.carplay }}
+          NUMERO_BUILD: ${{ github.run_number }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          DIST_CERT_P12: ${{ secrets.DIST_CERT_P12 }}
+          DIST_CERT_PASSWORD: ${{ secrets.DIST_CERT_PASSWORD }}
+          CARPLAY_PROFILE: ${{ secrets.CARPLAY_PROFILE }}
+        run: ios/script/testflight.sh
+
+      - name: Pulizia
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/firma.keychain-db" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP"/AuthKey_*.p8 "$RUNNER_TEMP/certificato.p12"
