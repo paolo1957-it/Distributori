@@ -204,8 +204,9 @@ final class InterfacciaCarPlay: NSObject, CPPointOfInterestTemplateDelegate {
             detailTitle: Logica.titolo(imp),
             detailSubtitle: "\(Preferenze.attuali.descrizione) \(testoPrezzo(d))",
             detailSummary: "\(distanza) · \(Logica.indirizzo(imp))\nPrezzo comunicato \(Logica.quando(d.dataPrezzo))",
-            pinImage: Disegni.spillo(d.fascia)
+            pinImage: Disegni.spillo(prezzo: Logica.formattaPrezzo(d.prezzo), fascia: d.fascia)
         )
+        punto.selectedPinImage = Disegni.spillo(prezzo: Logica.formattaPrezzo(d.prezzo), fascia: d.fascia, selezionato: true)
         punto.primaryButton = CPTextButton(title: "Naviga", textStyle: .confirm) { [weak self] _ in
             Task { @MainActor in self?.naviga(verso: d) }
         }

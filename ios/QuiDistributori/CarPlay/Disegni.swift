@@ -12,26 +12,40 @@ enum Disegni {
         }
     }
 
-    private static var spilli: [Fascia: UIImage] = [:]
+    /// Lato massimo che Apple concede ai segnaposto della mappa CarPlay (40 × 40 punti).
+    static let latoSpillo: CGFloat = 40
 
-    /// Pallino colorato con la pompa di benzina, per la mappa.
-    static func spillo(_ fascia: Fascia) -> UIImage {
-        if let fatto = spilli[fascia] { return fatto }
-        let lato: CGFloat = 32
-        let immagine = UIGraphicsImageRenderer(size: CGSize(width: lato, height: lato)).image { _ in
-            let cerchio = CGRect(x: 1, y: 1, width: lato - 2, height: lato - 2)
-            UIColor.white.setFill()
-            UIBezierPath(ovalIn: cerchio).fill()
+    /// Segnaposto per la mappa: etichetta colorata con il prezzo (come nella web app) e,
+    /// sotto, il punto esatto del distributore. "selezionato" aggiunge il bordo blu.
+    static func spillo(prezzo: String, fascia: Fascia, selezionato: Bool = false) -> UIImage {
+        let lato = latoSpillo
+        return UIGraphicsImageRenderer(size: CGSize(width: lato, height: lato)).image { _ in
+            // Etichetta con il prezzo, in alto
+            let etichetta = CGRect(x: 1, y: 3, width: lato - 2, height: 21)
+            let bordo = UIBezierPath(roundedRect: etichetta, cornerRadius: 6)
             colore(fascia).setFill()
-            UIBezierPath(ovalIn: cerchio.insetBy(dx: 2.5, dy: 2.5)).fill()
-            let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
-            if let simbolo = UIImage(systemName: "fuelpump.fill", withConfiguration: config)?
-                .withTintColor(.white, renderingMode: .alwaysOriginal) {
-                simbolo.draw(at: CGPoint(x: (lato - simbolo.size.width) / 2, y: (lato - simbolo.size.height) / 2))
-            }
+            bordo.fill()
+            (selezionato ? UIColor.systemBlue : UIColor.white).setStroke()
+            bordo.lineWidth = selezionato ? 2.5 : 1.5
+            bordo.stroke()
+            let stile = NSMutableParagraphStyle()
+            stile.alignment = .center
+            let attributi: [NSAttributedString.Key: Any] = [
+                .font: UIFont.monospacedDigitSystemFont(ofSize: 11, weight: .heavy),
+                .foregroundColor: UIColor.white,
+                .paragraphStyle: stile
+            ]
+            let altezza = (prezzo as NSString).size(withAttributes: attributi).height
+            (prezzo as NSString).draw(in: CGRect(x: etichetta.minX, y: etichetta.midY - altezza / 2,
+                                                 width: etichetta.width, height: altezza),
+                                      withAttributes: attributi)
+            // Punto sulla posizione, in basso al centro
+            let punto = CGRect(x: lato / 2 - 5, y: 28, width: 10, height: 10)
+            UIColor.white.setFill()
+            UIBezierPath(ovalIn: punto).fill()
+            colore(fascia).setFill()
+            UIBezierPath(ovalIn: punto.insetBy(dx: 2, dy: 2)).fill()
         }
-        spilli[fascia] = immagine
-        return immagine
     }
 
     /// Riquadro colorato con il prezzo, come le icone dell'elenco della web app.

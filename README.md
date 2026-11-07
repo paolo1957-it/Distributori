@@ -24,6 +24,7 @@ Per aggiornare i prezzi subito: Actions â†’ *Pubblica sito e aggiorna prezzi* â†
 - `app.js`: mappa, GPS, elenco, impostazioni
 - `config.js`: impostazioni iniziali e numero di versione
 - `aggiorna_prezzi.py`, `.github/workflows/pubblica.yml`: scaricamento dei prezzi e pubblicazione
+- `android/`: app per Android e Android Auto, stessa idea (vedi `android/ANDROID.md`), compilata dal workflow `.github/workflows/android.yml`
 - `ios/`: app per iPhone e CarPlay che usa gli stessi dati (vedi `ios/README.md`), compilata dal workflow `.github/workflows/ios.yml`
 - `sw.js`, `manifest.webmanifest`, icone PNG (`icon-*.png`, `apple-touch-icon.png`, `favicon-64.png`): installazione come app
 
